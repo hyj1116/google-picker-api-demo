@@ -1,0 +1,104 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Google Picker Example</title>
+    <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
+    <script type="text/javascript" src="    http://localhost:8000/test.js"></script>
+    <!--    <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>-->
+    <script>
+        //        var signoutButton = document.getElementById('signout-button');
+
+        // The Browser API key obtained from the Google Developers
+        // Console.
+        var developerKey = 'AIzaSyDeEWJPIdmhQPr-hmOKiGIWkF7OWlDzPY0';
+
+        // The Client ID obtained from the Google Developers
+        // Console. Replace with your own Client ID.
+        var clientId = "319171372839-53dh8uclar0lir594cup0ba8cf1muig4.apps.googleusercontent.com"
+
+        // Scope to use to access user's photos.
+        var scope = ['https://www.googleapis.com/auth/drive'];
+
+        var pickerApiLoaded = false;
+        var oauthToken;
+
+        function onApiLoad() {
+            //            alert("onApiLoad");
+            gapi.load('auth', {
+                'callback': onAuthApiLoad
+            });
+            gapi.load('picker');
+            //            signoutButton.onclick = handleSignoutClick;
+        }
+
+        function onAuthApiLoad() {
+            window.gapi.auth.authorize({
+                'client_id': clientId,
+                'scope': scope,
+                immediate: true
+            }, handleAuthResult);
+        }
+        //        var oauthToken;
+
+        function handleAuthResult(authResult) {
+            if (authResult && !authResult.error) {
+                oauthToken = authResult.access_token;
+                createPicker();
+            }
+        }
+
+        function createPicker() {
+            var picker = new google.picker.PickerBuilder()
+                .addView(new google.picker.DocsView())
+                .addView(google.picker.ViewId.PHOTOS)
+                .addView(new google.picker.DocsUploadView())
+                .enableFeature(google.picker.Feature.NAV_HIDDEN)
+                //                .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+                .setOAuthToken(oauthToken)
+                .setDeveloperKey('AIzaSyDeEWJPIdmhQPr-hmOKiGIWkF7OWlDzPY0')
+                .setCallback(pickerCallback)
+                .build();
+            picker.setVisible(true);
+        }
+
+        function pickerCallback(data) {
+            var url = 'nothing';
+            if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+                var doc = data[google.picker.Response.DOCUMENTS][0];
+                url = doc[google.picker.Document.URL];
+                window.open(url, '_blank')
+                //                window.location.href = url;
+
+            }
+            var message = 'You picked: ' + url;
+
+            document.getElementById('result').innerHTML = message;
+        }
+
+
+        //        testHello("Jack");
+
+        // // function handleSignoutClick(event) { // gapi.auth2.getAuthInstance().signOut(); // }
+
+        function handleSignoutClick(event) {
+            gapi.auth2.getAuthInstance().signOut();
+        }
+
+        onApiLoad();
+
+    </script>
+</head>
+
+<body>
+    <div id="result"></div>
+    <input type="text" onclick="onApiLoad()" /><button>搜尋</button>
+    <!--    <button id="signout-button" style="display: none;">Sign Out</button>-->
+    <button id="signout-button" onclick="handleSignoutClick();">Sign Out</button>
+    <!-- The Google API Loader script. -->
+    <!--    <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=loadPicker"></script>-->
+    <!--    <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>-->
+    <!--    <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>-->
+</body>
+
+</html>

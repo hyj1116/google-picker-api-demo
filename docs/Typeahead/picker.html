@@ -1,0 +1,327 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="jquery.typeahead.min.css">
+    <link rel="stylesheet" href="deco.css">
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="jquery.typeahead.min.js"></script>
+</head>
+
+
+<body>
+    <input id="search" type="button" value="Search File" />
+    <p>Drive API Quickstart</p>
+
+    <button id="authorize-button" style="display: none;">Authorize</button>
+    <button id="signout-button" style="display: none;">Sign Out</button>
+
+    <pre id="content"></pre>
+
+    <var id="result-container" class="result-container"></var>
+
+    <form id="form-country_v2" name="form-country_v2">
+        <div class="typeahead__container">
+            <div class="typeahead__field">
+
+                <span class="typeahead__query">
+<!--                <input class="js-typeahead-country_v2">-->
+                                <input class="js-typeahead-country_v2" name="country_v2[query]" placeholder="Search" autocomplete="off" type="search">
+            </span>
+                <span class="typeahead__button">
+                <button type="submit">
+                    <i class="typeahead__search-icon"></i>
+                </button>
+            </span>
+
+            </div>
+        </div>
+
+    </form>
+    <script type="text/javascript">
+        appleNum = 5;
+        states = [
+            //        'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', // 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', // 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', // 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', // 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', // 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', // 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', // 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', // 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
+        ];
+        // The Client ID obtained from the Google Developers Console. Replace with your own Client ID.
+        var CLIENT_ID = '319171372839-53dh8uclar0lir594cup0ba8cf1muig4.apps.googleusercontent.com';
+
+        // The Browser API key obtained from the Google Developers Console.
+        var developerKey = 'AIzaSyDeEWJPIdmhQPr-hmOKiGIWkF7OWlDzPY0';
+
+        // Array of API discovery doc URLs for APIs used by the quickstart
+        var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+
+        // Authorization scopes required by the API; multiple scopes can be
+        // included, separated by spaces.
+        var SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly';
+
+        var pickerApiLoaded = false;
+        var oauthToken;
+        var authorizeButton = document.getElementById('authorize-button');
+        var signoutButton = document.getElementById('signout-button');
+        var searchButton = document.getElementById('search');
+
+        /**
+         *  On load, called to load the auth2 library and API client library.
+         */
+        function handleClientLoad() {
+            gapi.load('client:auth2', initClient);
+            //            gapi.load('auth', {
+            //                'callback': onAuthApiLoad
+            //            });
+            //            gapi.load('picker', {
+            //                'callback': onPickerApiLoad
+            //            });
+        }
+
+        /**
+         *  Initializes the API client library and sets up sign-in state
+         *  listeners.
+         */
+        function initClient() {
+            gapi.client.init({
+                discoveryDocs: DISCOVERY_DOCS,
+                clientId: CLIENT_ID,
+                scope: SCOPES
+            }).then(function() {
+                // Listen for sign-in state changes.
+                gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+                // Handle the initial sign-in state.
+                updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+                authorizeButton.onclick = handleAuthClick;
+                signoutButton.onclick = handleSignoutClick;
+                searchButton.onclick = onApiLoad;
+            });
+        }
+
+        /**
+         *  Called when the signed in status changes, to update the UI
+         *  appropriately. After a sign-in, the API is called.
+         */
+        function updateSigninStatus(isSignedIn) {
+            if (isSignedIn) {
+                authorizeButton.style.display = 'none';
+                signoutButton.style.display = 'block';
+                //                listFiles();
+            } else {
+                authorizeButton.style.display = 'block';
+                signoutButton.style.display = 'none';
+            }
+        }
+
+        /**
+         *  Sign in the user upon button click.
+         */
+        function handleAuthClick(event) {
+            gapi.auth2.getAuthInstance().signIn();
+        }
+
+        /**
+         *  Sign out the user upon button click.
+         */
+        function handleSignoutClick(event) {
+            gapi.auth2.getAuthInstance().signOut();
+        }
+
+        /**
+         * Append a pre element to the body containing the given message
+         * as its text node. Used to display the results of the API call.
+         *
+         * @param {string} message Text to be placed in pre element.
+         */
+        function appendPre(message) {
+            var pre = document.getElementById('content');
+            var textContent = document.createTextNode(message + '\n');
+            pre.appendChild(textContent);
+        }
+
+
+        function onApiLoad() {
+            gapi.load('auth', {
+                'callback': onAuthApiLoad
+            });
+            gapi.load('picker', {
+                'callback': onPickerApiLoad
+            });
+        }
+
+        function onAuthApiLoad() {
+            window.gapi.auth.authorize({
+                    'client_id': CLIENT_ID,
+                    'scope': SCOPES,
+                    'immediate': false
+                },
+                handleAuthResult);
+        }
+
+        function onPickerApiLoad() {
+            pickerApiLoaded = true;
+            createPicker();
+        }
+
+        function handleAuthResult(authResult) {
+            if (authResult && !authResult.error) {
+                oauthToken = authResult.access_token;
+                createPicker();
+            }
+        }
+
+        // Create and render a Picker object for picking user Photos.
+        function createPicker() {
+            if (pickerApiLoaded && oauthToken) {
+                var picker = new google.picker.PickerBuilder().
+                addView(new google.picker.DocsView()).
+                setOAuthToken(oauthToken).
+                setDeveloperKey(developerKey).
+                setCallback(pickerCallback).
+                build();
+                picker.setVisible(true);
+            }
+        }
+
+        // A simple callback implementation.
+        function pickerCallback(data) {
+            var url = 'nothing';
+            if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+                var doc = data[google.picker.Response.DOCUMENTS][0];
+                url = doc[google.picker.Document.URL];
+                window.open(url, '_blank')
+
+            }
+            //            var message = 'You picked: ' + url;
+            //            document.getElementById('result').innerHTML = message;
+        }
+        /**
+         * Print files.
+         */
+        function listFiles() {
+            alert("123");
+            gapi.client.drive.files.list({
+                'pageSize': 10,
+                //                'fields': "nextPageToken, files(id, name,webContentLink)"
+                'fields': "nextPageToken, files(name)"
+                //                'q': 'hello world'
+
+            }).then(function(response) {
+                appendPre('Files:');
+                var returnedFiles = response.result.files;
+                alert("returnedFiles:" + returnedFiles);
+                if (returnedFiles && returnedFiles.length > 0) {
+                    for (var i = 0; i < returnedFiles.length; i++) {
+                        var file = returnedFiles[i];
+                        //                        alert(file.name);
+                        //                        states.push(file.name);
+                        appendPre(file.name + ' (' + file.id + ')' + '（' + file.webContentLink + '）');
+                    }
+                    alert(returnedFiles);
+                    myJSON = JSON.stringify(returnedFiles);
+                    initTypeHead(myJSON);
+                    alert("aa");
+                    myJSON = JSON.stringify(states);
+                    alert(myJSON);
+                    alert("bb");
+                    //                    $("input").autocomplete({
+                    //                        source: [states]
+                    //                    });
+                } else {
+                    appendPre('No files found.');
+                }
+            });
+            console.log("111");
+            console.log(states);
+            //            alert("states:" + states);
+            console.log("222");
+        }
+
+    </script>
+
+    <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()" onreadystatechange="if (this.readyState === 'complete') this.onload()"></script>
+    <!--    <script async defer src="https://apis.google.com/js/api.js"></script>-->
+
+    <script>
+        //        alert("Before:" + appleNum);
+
+        function initTypeHead(fileName) {
+
+            $.typeahead({
+                input: '.js-typeahead-country_v2',
+                minLength: 1,
+                maxItem: !1,
+                order: "asc",
+                href: "https://en.wikipedia.org/?title={{display}}",
+                template: "{{display}} <small style='color:green;'>{{group}}</small>",
+                source: {
+                    //                    country: {
+                    //                        ajax: {
+                    //                            url: "country_v2.json",
+                    //                            //                            url: fileName,
+                    //                            path: "name"
+                    //                        }
+                    //                    },
+                    capital: {
+                        ajax: {
+                            type: "GET",
+                            //                            url: "country_v2.json",
+                            url: fileName,
+                            //                            path: "data.capital",
+                            path: "name",
+                            //                            data: {
+                            //                                myKey: "myValue"
+                            //                            }
+                        }
+                    }
+                },
+                callback: {
+                    onNavigateAfter: function(node, lis, a, item, query, event) {
+                        if (~[38, 40].indexOf(event.keyCode)) {
+                            var resultList = node.closest("form").find("ul.typeahead__list"),
+                                activeLi = lis.filter("li.active"),
+                                offsetTop = activeLi[0] && activeLi[0].offsetTop - (resultList.height() / 2) || 0;
+                            resultList.scrollTop(offsetTop);
+                        }
+                    },
+                    onClickAfter: function(node, a, item, event) {
+                        event.preventDefault();
+                        var r = confirm("You will be redirected to:\n" + item.href + "\n\nContinue?");
+                        if (r == true) {
+                            window.open(item.href);
+                        }
+                        $('#result-container').text('');
+                    },
+                    onResult: function(node, query, result, resultCount) {
+                        if (query === "") return;
+                        var text = "";
+                        if (result.length > 0 && result.length <
+                            resultCount) {
+                            text = "Showing <strong>" + result.length + "</strong> of <strong>" + resultCount + '</strong> elements matching "' + query + '"';
+                        } else if (result.length > 0) {
+                            text = 'Showing <strong>' + result.length + '</strong> elements matching "' + query + '"';
+                        } else {
+                            text = 'No results matching "' + query + '"';
+                        }
+                        $('#result-container').html(text);
+                    },
+
+                    //可以在選項最右邊加上內容
+                    onMouseEnter: function(node, a, item, event) {
+
+                        if (item.group === "country") {
+                            $(a).append('<span class="flag-chart flag-' + item.display.replace(' ', '-').toLowerCase() + '"></span>')
+                        }
+
+                    },
+                    onMouseLeave: function(node, a, item, event) {
+
+                        $(a).find('.flag-chart').remove();
+
+                    }
+                }
+            });
+        }
+        //        alert("After:" + appleNum);
+
+    </script>
+</body>
+
+</html>

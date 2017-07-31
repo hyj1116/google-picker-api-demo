@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="js/filepicker.js"></script>
+
+</head>
+
+<body>
+    <a href="Sample.html">Click this to the Sample page.</a>
+    <br/>
+    <input type="text" id="searchfile" placeholder="Click here to search" />
+    <div id="pickupfile"></div>
+
+    <script>
+        function initPicker() {
+            var picker = new FilePicker({
+                apiKey: "AIzaSyB7PNOveG5XFoF54Dhmd8jCW9RDrLkJGDU",
+                client_id: "177111346091-b3c50k7nlliqft3r9vm70437ifmlfldp.apps.googleusercontent.com",
+                //                driveURL: "https://drive.google.com/drive/u/0/folders/0BzWFIYJGjfkTfjllMmZPUEF1b1ZuRUpPLWh6WkFudl8wZEtwU2RQRnFfbTNjSm9nLTdKcjg",
+                driveURL: "0BzWFIYJGjfkTfjllMmZPUEF1b1ZuRUpPLWh6WkFudl8wZEtwU2RQRnFfbTNjSm9nLTdKcjg",
+                scope: "https://www.googleapis.com/auth/drive.readonly",
+                buttonEl: document.getElementById('searchfile'),
+            });
+        }
+
+    </script>
+    <script src="https://www.google.com/jsapi?key=AIzaSyB7PNOveG5XFoF54Dhmd8jCW9RDrLkJGDU"></script>
+    <script src="https://apis.google.com/js/client.js?onload=initPicker"></script>
+
+</body>
+
+</html>
