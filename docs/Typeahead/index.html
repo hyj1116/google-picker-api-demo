@@ -82,8 +82,9 @@
 
                 if (authApiLoaded && oauthToken && setOAuthToken) {
 
-                    picker = new google.picker.PickerBuilder().
-                    addView(viewId).
+                    picker = new google.picker.PickerBuilder().addViewGroup
+                    addView(viewId).addView(google.picker.ViewId.DOCS).
+                    addView(google.picker.ViewId.PRESENTATIONS).
                     setOAuthToken(oauthToken).
                     setDeveloperKey(developerKey).
                     setCallback(pickerCallback).
@@ -235,10 +236,8 @@
                 var id = this.id;
                 var viewId = viewIds[id];
                 var driveFolder = "0BzWFIYJGjfkTfjllMmZPUEF1b1ZuRUpPLWh6WkFudl8wZEtwU2RQRnFfbTNjSm9nLTdKcjg";
-                var viewId = new google.picker.DocsView().setParent(driveFolder);
-                //.setIncludeFolders(true)
-
-                //                viewId.setIncludeFolders(true);
+                //                var viewId = new google.picker.DocsView().setParent(driveFolder);
+                var viewId = new google.picker.DocsView().setParent(driveFolder).setIncludeFolders(true).setSelectFolderEnabled(true);
                 var setOAuthToken = true;
 
                 //                if (id === 'IMAGE_SEARCH' || id === 'MAPS' || id === 'VIDEO_SEARCH') {
