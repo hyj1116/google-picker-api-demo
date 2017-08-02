@@ -4,6 +4,7 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Google Picker Example</title>
+    <!-- https://github.com/howdy39/google-picker-api-demo //-->
     <style>
         /*
         body {
@@ -82,7 +83,7 @@
 
                 if (authApiLoaded && oauthToken && setOAuthToken) {
 
-                    picker = new google.picker.PickerBuilder().addViewGroup
+                    picker = new google.picker.PickerBuilder().
                     addView(viewId).addView(google.picker.ViewId.DOCS).
                     addView(google.picker.ViewId.PRESENTATIONS).
                     setOAuthToken(oauthToken).
@@ -236,8 +237,8 @@
                 var id = this.id;
                 var viewId = viewIds[id];
                 var driveFolder = "0BzWFIYJGjfkTfjllMmZPUEF1b1ZuRUpPLWh6WkFudl8wZEtwU2RQRnFfbTNjSm9nLTdKcjg";
-                //                var viewId = new google.picker.DocsView().setParent(driveFolder);
-                var viewId = new google.picker.DocsView().setParent(driveFolder).setIncludeFolders(true).setSelectFolderEnabled(true);
+                var viewId = new google.picker.DocsView().setParent(driveFolder);
+                //                var viewId = new google.picker.DocsView().setParent(driveFolder).setIncludeFolders(true).setSelectFolderEnabled(true);
                 var setOAuthToken = true;
 
                 //                if (id === 'IMAGE_SEARCH' || id === 'MAPS' || id === 'VIDEO_SEARCH') {
