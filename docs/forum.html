@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Google Picker Example</title>
+
+    <!-- The standard Google Loader script. -->
+    <script src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        // Use the Google Loader script to load the google.picker script.
+        google.setOnLoadCallback(createPicker);
+        google.load('picker', '1');
+
+        var picker;
+
+        // Create a Picker object for testing upload to a folder
+        function createPicker() {
+            var driveFolder = "0BzWFIYJGjfkTfjllMmZPUEF1b1ZuRUpPLWh6WkFudl8wZEtwU2RQRnFfbTNjSm9nLTdKcjg";
+
+
+            picker = new
+            google.picker.PickerBuilder().
+            addView(new google.picker.DocsUploadView().setParent(driveFolder)).
+            setCallback(pickerCallback).
+            setAppId('177111346091').
+            enableFeature(google.picker.Feature.MULTISELECT_ENABLED).
+            build();
+            picker.setVisible(true);
+        }
+
+        // A simple callback implementation.
+        function pickerCallback(data) {
+            var message = 'You picked: ' +
+                ((data.action == google.picker.Action.PICKED) ? data.docs[0].url : 'nothing');
+            document.getElementById('result').innerHTML = message;
+        }
+
+        function showPicker() {
+            picker.setVisible(true);
+        }
+
+    </script>
+</head>
+
+<body>
+    <input type="button" value="Show Picker" onClick="showPicker()" />
+    <div id="result"></div>
+</body>
+
+</html>
